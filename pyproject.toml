@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mindgraph"
+version = "0.1.0"
+description = "Python client for the MindGraph Cloud API"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+keywords = ["mindgraph", "knowledge-graph", "cognitive", "ai", "agent"]
+dependencies = ["httpx>=0.25"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "ruff"]
