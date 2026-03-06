@@ -125,6 +125,30 @@ class MindGraph:
     def session(self, **kwargs: Any) -> Any:
         return self._request("POST", "/memory/session", kwargs)
 
+    def journal(
+        self,
+        label: str,
+        content: str,
+        *,
+        session_uid: str | None = None,
+        journal_type: str | None = None,
+        tags: list[str] | None = None,
+        relevant_node_uids: list[str] | None = None,
+        agent_id: str | None = None,
+    ) -> Any:
+        body: dict[str, Any] = {"action": "journal", "label": label, "content": content}
+        if session_uid:
+            body["session_uid"] = session_uid
+        if journal_type:
+            body["journal_type"] = journal_type
+        if tags:
+            body["tags"] = tags
+        if relevant_node_uids:
+            body["relevant_node_uids"] = relevant_node_uids
+        if agent_id:
+            body["agent_id"] = agent_id
+        return self._request("POST", "/memory/session", body)
+
     def distill(self, **kwargs: Any) -> Any:
         return self._request("POST", "/memory/distill", kwargs)
 
