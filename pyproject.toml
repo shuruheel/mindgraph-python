@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mindgraph"
+name = "mindgraph-sdk"
 version = "0.1.0"
 description = "Python client for the MindGraph Cloud API"
 readme = "README.md"

@@ -251,14 +251,14 @@ class MindGraph:
 
     def reasoning_chain(self, uid: str, max_depth: int = 5) -> list[dict[str, Any]]:
         return self._request(
-            "POST", "/traverse", {"action": "chain", "uid": uid, "max_depth": max_depth}
+            "POST", "/traverse", {"action": "chain", "start_uid": uid, "max_depth": max_depth}
         )
 
     def neighborhood(self, uid: str, max_depth: int = 1) -> list[dict[str, Any]]:
         return self._request(
             "POST",
             "/traverse",
-            {"action": "neighborhood", "uid": uid, "max_depth": max_depth},
+            {"action": "neighborhood", "start_uid": uid, "max_depth": max_depth},
         )
 
     # ---- Lifecycle shortcuts ----
