@@ -12,5 +12,8 @@ requires-python = ">=3.9"
 keywords = ["mindgraph", "knowledge-graph", "cognitive", "ai", "agent"]
 dependencies = ["httpx>=0.25"]
 
+[tool.hatch.build.targets.wheel]
+packages = ["mindgraph"]
+
 [project.optional-dependencies]
 dev = ["pytest", "pytest-asyncio", "ruff"]
