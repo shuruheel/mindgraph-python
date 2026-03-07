@@ -81,13 +81,13 @@ class MindGraph:
     def find_or_create_entity(
         self,
         label: str,
-        entity_type: str = "other",
+        props: dict[str, Any] | None = None,
         agent_id: str | None = None,
     ) -> dict[str, Any]:
         body: dict[str, Any] = {
             "action": "create",
             "label": label,
-            "entity_type": entity_type,
+            "props": {"entity_type": "other", **(props or {})},
         }
         if agent_id:
             body["agent_id"] = agent_id
@@ -128,23 +128,28 @@ class MindGraph:
     def journal(
         self,
         label: str,
-        content: str,
+        props: dict[str, Any] | None = None,
         *,
+        summary: str | None = None,
         session_uid: str | None = None,
-        journal_type: str | None = None,
-        tags: list[str] | None = None,
         relevant_node_uids: list[str] | None = None,
+        confidence: float | None = None,
+        salience: float | None = None,
         agent_id: str | None = None,
     ) -> Any:
-        body: dict[str, Any] = {"action": "journal", "label": label, "content": content}
+        body: dict[str, Any] = {"action": "journal", "label": label}
+        if props:
+            body["props"] = props
+        if summary:
+            body["summary"] = summary
         if session_uid:
             body["session_uid"] = session_uid
-        if journal_type:
-            body["journal_type"] = journal_type
-        if tags:
-            body["tags"] = tags
         if relevant_node_uids:
             body["relevant_node_uids"] = relevant_node_uids
+        if confidence is not None:
+            body["confidence"] = confidence
+        if salience is not None:
+            body["salience"] = salience
         if agent_id:
             body["agent_id"] = agent_id
         return self._request("POST", "/memory/session", body)
