@@ -279,16 +279,18 @@ class MindGraph:
     # ---- Traversal shortcuts ----
 
     def reasoning_chain(self, uid: str, max_depth: int = 5) -> list[dict[str, Any]]:
-        return self._request(
+        r = self._request(
             "POST", "/traverse", {"action": "chain", "start_uid": uid, "max_depth": max_depth}
         )
+        return r.get("steps", []) if isinstance(r, dict) else r
 
     def neighborhood(self, uid: str, max_depth: int = 1) -> list[dict[str, Any]]:
-        return self._request(
+        r = self._request(
             "POST",
             "/traverse",
             {"action": "neighborhood", "start_uid": uid, "max_depth": max_depth},
         )
+        return r.get("steps", []) if isinstance(r, dict) else r
 
     # ---- Lifecycle shortcuts ----
 
