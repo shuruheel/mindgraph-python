@@ -1,6 +1,6 @@
 # mindgraph
 
-[![PyPI](https://img.shields.io/pypi/v/mindgraph)](https://pypi.org/project/mindgraph/)
+[![PyPI](https://img.shields.io/pypi/v/mindgraph-sdk)](https://pypi.org/project/mindgraph-sdk/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Python client for the [MindGraph Cloud](https://mindgraph.cloud) API — a structured semantic memory graph for AI agents.
@@ -8,7 +8,7 @@ Python client for the [MindGraph Cloud](https://mindgraph.cloud) API — a struc
 ## Install
 
 ```bash
-pip install mindgraph
+pip install mindgraph-sdk
 ```
 
 ## Quick Start
@@ -79,6 +79,7 @@ Supports context manager protocol (`with` statement) for automatic cleanup.
 | Method | Description |
 |--------|-------------|
 | `session(**kwargs)` | Open a session, record traces, or close a session |
+| `journal(label, props?, *, summary?, session_uid?, ...)` | Record a journal entry linked to an optional session |
 | `distill(**kwargs)` | Create a summary that distills multiple source nodes |
 | `memory_config(**kwargs)` | Set/get preferences and memory policies |
 
@@ -115,6 +116,13 @@ Supports context manager protocol (`with` statement) for automatic cleanup.
 | `reasoning_chain(uid, max_depth=5)` | Follow epistemic edges from a node |
 | `neighborhood(uid, max_depth=1)` | Get all nodes within N hops |
 
+### Lifecycle Shortcuts
+
+| Method | Description |
+|--------|-------------|
+| `tombstone(uid, reason?, agent_id?)` | Soft-delete a node |
+| `restore(uid, agent_id?)` | Restore a tombstoned node |
+
 ### Cross-cutting
 
 | Method | Description |
@@ -129,6 +137,17 @@ Supports context manager protocol (`with` statement) for automatic cleanup.
 |--------|-------------|
 | `health()` | Health check |
 | `stats()` | Graph-wide statistics |
+
+### Management (Cloud only)
+
+| Method | Description |
+|--------|-------------|
+| `signup(email, password)` | Create a new account |
+| `login(email, password)` | Login and receive JWT |
+| `create_api_key(name?)` | Create an API key |
+| `list_api_keys()` | List all API keys |
+| `revoke_api_key(key_id)` | Revoke an API key |
+| `get_usage()` | Get usage statistics |
 
 ## Error Handling
 
