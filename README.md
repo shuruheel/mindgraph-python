@@ -149,6 +149,10 @@ Supports context manager protocol (`with` statement) for automatic cleanup.
 | `revoke_api_key(key_id)` | Revoke an API key |
 | `get_usage()` | Get usage statistics |
 
+## Examples
+
+See [`examples/`](examples/) for runnable demos, including a [research continuity](examples/research_continuity.py) scenario showing cross-session memory retrieval.
+
 ## Error Handling
 
 All methods raise `MindGraphError` on HTTP errors:
