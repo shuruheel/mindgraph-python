@@ -116,6 +116,17 @@ Supports context manager protocol (`with` statement) for automatic cleanup.
 | `reasoning_chain(uid, max_depth=5)` | Follow epistemic edges from a node |
 | `neighborhood(uid, max_depth=1)` | Get all nodes within N hops |
 
+### Ingestion & Retrieval
+
+| Method | Description |
+|--------|-------------|
+| `ingest_chunk(content, *, chunk_type?, ...)` | Ingest a single text chunk (sync): stores, embeds, and runs LLM extraction |
+| `ingest_document(content, *, title?, ...)` | Ingest a full document (async): chunks text, returns job ID |
+| `ingest_session(content, *, session_uid?, ...)` | Ingest a session transcript (async): links to session, returns job ID |
+| `retrieve_context(query, *, k?, depth?, ...)` | Retrieve semantically matched chunks + connected graph nodes/edges |
+| `get_job(job_id)` | Get async job status and progress |
+| `clear_graph()` | Clear all graph data |
+
 ### Lifecycle Shortcuts
 
 | Method | Description |
