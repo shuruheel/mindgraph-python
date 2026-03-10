@@ -211,6 +211,12 @@ class MindGraph:
     def delete_node(self, uid: str) -> None:
         self._request("DELETE", f"/node/{uid}")
 
+    def get_node_history(self, uid: str) -> list[dict[str, Any]]:
+        return self._request("GET", f"/node/{uid}/history")
+
+    def get_node_at_version(self, uid: str, version: int) -> dict[str, Any]:
+        return self._request("GET", f"/node/{uid}/history/{version}")
+
     # ---- Edge CRUD ----
 
     def add_link(
@@ -229,6 +235,38 @@ class MindGraph:
             body["agent_id"] = agent_id
         return self._request("POST", "/link", body)
 
+    def add_edge(
+        self,
+        from_uid: str,
+        to_uid: str,
+        edge_type: str,
+        *,
+        weight: float | None = None,
+        props: dict[str, Any] | None = None,
+        agent_id: str | None = None,
+    ) -> Any:
+        body: dict[str, Any] = {
+            "from_uid": from_uid,
+            "to_uid": to_uid,
+            "edge_type": edge_type,
+        }
+        if weight is not None:
+            body["weight"] = weight
+        if props:
+            body["props"] = props
+        if agent_id:
+            body["agent_id"] = agent_id
+        return self._request("POST", "/edge", body)
+
+    def update_edge(self, uid: str, **kwargs: Any) -> Any:
+        return self._request("PATCH", f"/edge/{uid}", kwargs)
+
+    def delete_edge(self, uid: str) -> None:
+        self._request("DELETE", f"/edge/{uid}")
+
+    def get_edge_history(self, uid: str) -> list[dict[str, Any]]:
+        return self._request("GET", f"/edge/{uid}/history")
+
     def get_edges(
         self,
         from_uid: str | None = None,
@@ -241,6 +279,18 @@ class MindGraph:
             params["to_uid"] = to_uid
         qs = "&".join(f"{k}={v}" for k, v in params.items())
         return self._request("GET", f"/edges?{qs}")
+
+    def get_edge_between(
+        self,
+        from_uid: str,
+        to_uid: str,
+        edge_type: str | None = None,
+    ) -> list[dict[str, Any]]:
+        params = {"from_uid": from_uid, "to_uid": to_uid}
+        if edge_type:
+            params["edge_type"] = edge_type
+        qs = "&".join(f"{k}={v}" for k, v in params.items())
+        return self._request("GET", f"/edge/between?{qs}")
 
     # ---- Search ----
 
@@ -276,6 +326,135 @@ class MindGraph:
             body["layer"] = layer
         return self._request("POST", "/retrieve", body)
 
+    # ---- Nodes listing ----
+
+    def get_nodes(
+        self,
+        node_type: str | None = None,
+        layer: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> Any:
+        params: dict[str, str] = {}
+        if node_type:
+            params["node_type"] = node_type
+        if layer:
+            params["layer"] = layer
+        if limit is not None:
+            params["limit"] = str(limit)
+        if offset is not None:
+            params["offset"] = str(offset)
+        qs = "&".join(f"{k}={v}" for k, v in params.items())
+        return self._request("GET", f"/nodes?{qs}")
+
+    def get_agent_nodes(self, agent_id: str) -> list[dict[str, Any]]:
+        return self._request("GET", f"/agent/{agent_id}/nodes")
+
+    # ---- Batch ----
+
+    def batch(self, **kwargs: Any) -> Any:
+        return self._request("POST", "/batch", kwargs)
+
+    # ---- Embeddings ----
+
+    def configure_embeddings(self, **kwargs: Any) -> Any:
+        return self._request("POST", "/embeddings/configure", kwargs)
+
+    def embedding_search(self, **kwargs: Any) -> Any:
+        return self._request("POST", "/embeddings/search", kwargs)
+
+    def embedding_search_text(self, **kwargs: Any) -> Any:
+        return self._request("POST", "/embeddings/search-text", kwargs)
+
+    def get_embedding(self, uid: str) -> Any:
+        return self._request("GET", f"/embeddings/{uid}")
+
+    def set_embedding(self, uid: str, vector: list[float]) -> None:
+        self._request("PUT", f"/embeddings/{uid}", {"vector": vector})
+
+    def delete_embedding(self, uid: str) -> None:
+        self._request("DELETE", f"/embeddings/{uid}")
+
+    # ---- Entity resolution ----
+
+    def merge_entities(
+        self,
+        keep_uid: str,
+        merge_uid: str,
+        agent_id: str | None = None,
+    ) -> Any:
+        body: dict[str, Any] = {"keep_uid": keep_uid, "merge_uid": merge_uid}
+        if agent_id:
+            body["agent_id"] = agent_id
+        return self._request("POST", "/entities/merge", body)
+
+    def add_alias(
+        self,
+        text: str,
+        canonical_uid: str,
+        score: float | None = None,
+    ) -> Any:
+        body: dict[str, Any] = {"text": text, "canonical_uid": canonical_uid}
+        if score is not None:
+            body["score"] = score
+        return self._request("POST", "/alias", body)
+
+    def get_aliases(self, uid: str) -> Any:
+        return self._request("GET", f"/aliases/{uid}")
+
+    def resolve_alias(self, text: str) -> Any:
+        from urllib.parse import quote
+        return self._request("GET", f"/resolve?text={quote(text)}")
+
+    # ---- Export / Import ----
+
+    def export_graph(self) -> Any:
+        return self._request("GET", "/export")
+
+    def import_graph(self, data: Any) -> Any:
+        return self._request("POST", "/import", data)
+
+    # ---- Lifecycle ----
+
+    def decay(
+        self,
+        half_life_secs: float,
+        min_salience: float | None = None,
+        min_age_secs: float | None = None,
+    ) -> Any:
+        body: dict[str, Any] = {"half_life_secs": half_life_secs}
+        if min_salience is not None:
+            body["min_salience"] = min_salience
+        if min_age_secs is not None:
+            body["min_age_secs"] = min_age_secs
+        return self._request("POST", "/decay", body)
+
+    def purge(self, before: float | None = None) -> Any:
+        body: dict[str, Any] = {}
+        if before is not None:
+            body["before"] = before
+        return self._request("POST", "/purge", body)
+
+    # ---- Epistemic queries ----
+
+    def get_goals(self) -> list[dict[str, Any]]:
+        return self._request("GET", "/goals")
+
+    def get_open_decisions(self) -> list[dict[str, Any]]:
+        return self._request("GET", "/decisions")
+
+    def get_open_questions(self) -> list[dict[str, Any]]:
+        return self._request("GET", "/questions")
+
+    def get_weak_claims(self) -> list[dict[str, Any]]:
+        return self._request("GET", "/claims/weak")
+
+    def get_contradictions(self) -> list[Any]:
+        return self._request("GET", "/contradictions")
+
+    def get_pending_approvals(self) -> list[dict[str, Any]]:
+        return self._request("GET", "/approvals/pending")
+
     # ---- Traversal shortcuts ----
 
     def reasoning_chain(self, uid: str, max_depth: int = 5) -> list[dict[str, Any]]:
@@ -291,6 +470,25 @@ class MindGraph:
             {"action": "neighborhood", "start_uid": uid, "max_depth": max_depth},
         )
         return r.get("steps", []) if isinstance(r, dict) else r
+
+    def subgraph(
+        self,
+        uid: str,
+        max_depth: int | None = None,
+        direction: str | None = None,
+        edge_types: list[str] | None = None,
+        weight_threshold: float | None = None,
+    ) -> dict[str, Any]:
+        body: dict[str, Any] = {"uid": uid}
+        if max_depth is not None:
+            body["max_depth"] = max_depth
+        if direction:
+            body["direction"] = direction
+        if edge_types:
+            body["edge_types"] = edge_types
+        if weight_threshold is not None:
+            body["weight_threshold"] = weight_threshold
+        return self._request("POST", "/subgraph", body)
 
     # ---- Lifecycle shortcuts ----
 
@@ -419,8 +617,20 @@ class MindGraph:
             body["min_similarity"] = min_similarity
         return self._request("POST", "/retrieve/context", body)
 
+    def list_jobs(self) -> list[dict[str, Any]]:
+        return self._request("GET", "/jobs")
+
     def get_job(self, job_id: str) -> dict[str, Any]:
         return self._request("GET", f"/jobs/{job_id}")
+
+    def cancel_job(self, job_id: str) -> Any:
+        return self._request("POST", f"/jobs/{job_id}/cancel")
+
+    def cleanup_orphans(self) -> Any:
+        return self._request("POST", "/ingest/cleanup")
+
+    def embed_all(self) -> Any:
+        return self._request("POST", "/ingest/embed-all")
 
     def clear_graph(self) -> dict[str, Any]:
         return self._request("POST", "/clear")
