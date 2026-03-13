@@ -367,13 +367,13 @@ class MindGraph:
         return self._request("POST", "/embeddings/search-text", kwargs)
 
     def get_embedding(self, uid: str) -> Any:
-        return self._request("GET", f"/embeddings/{uid}")
+        return self._request("GET", f"/node/{uid}/embedding")
 
     def set_embedding(self, uid: str, vector: list[float]) -> None:
-        self._request("PUT", f"/embeddings/{uid}", {"vector": vector})
+        self._request("PUT", f"/node/{uid}/embedding", {"vector": vector})
 
     def delete_embedding(self, uid: str) -> None:
-        self._request("DELETE", f"/embeddings/{uid}")
+        self._request("DELETE", f"/node/{uid}/embedding")
 
     # ---- Entity resolution ----
 
@@ -479,7 +479,7 @@ class MindGraph:
         edge_types: list[str] | None = None,
         weight_threshold: float | None = None,
     ) -> dict[str, Any]:
-        body: dict[str, Any] = {"uid": uid}
+        body: dict[str, Any] = {"start_uids": [uid]}
         if max_depth is not None:
             body["max_depth"] = max_depth
         if direction:
@@ -569,6 +569,7 @@ class MindGraph:
         self,
         content: str,
         *,
+        title: str | None = None,
         session_uid: str | None = None,
         chunk_size: int | None = None,
         chunk_overlap: float | None = None,
@@ -576,6 +577,8 @@ class MindGraph:
         agent_id: str | None = None,
     ) -> dict[str, Any]:
         body: dict[str, Any] = {"content": content}
+        if title:
+            body["title"] = title
         if session_uid:
             body["session_uid"] = session_uid
         if chunk_size is not None:
@@ -635,22 +638,3 @@ class MindGraph:
     def clear_graph(self) -> dict[str, Any]:
         return self._request("POST", "/clear")
 
-    # ---- Management (Cloud only) ----
-
-    def signup(self, email: str, password: str) -> Any:
-        return self._request("POST", "/v1/auth/signup", {"email": email, "password": password})
-
-    def login(self, email: str, password: str) -> Any:
-        return self._request("POST", "/v1/auth/login", {"email": email, "password": password})
-
-    def create_api_key(self, name: str = "default") -> dict[str, Any]:
-        return self._request("POST", "/v1/api-keys", {"name": name})
-
-    def list_api_keys(self) -> dict[str, Any]:
-        return self._request("GET", "/v1/api-keys")
-
-    def revoke_api_key(self, key_id: str) -> None:
-        self._request("DELETE", f"/v1/api-keys/{key_id}")
-
-    def get_usage(self) -> Any:
-        return self._request("GET", "/v1/usage")
