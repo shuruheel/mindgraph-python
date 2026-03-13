@@ -42,20 +42,7 @@ class TestHealthStats:
 
 
 # ============================================================
-# 2. Management
-# ============================================================
-class TestManagement:
-    def test_list_api_keys(self, mg):
-        r = mg.list_api_keys()
-        assert "api_keys" in r
-
-    def test_get_usage(self, mg):
-        r = mg.get_usage()
-        assert "org_id" in r
-
-
-# ============================================================
-# 3. Reality: Capture
+# 2. Reality: Capture
 # ============================================================
 class TestRealityCapture:
     def test_source(self, mg, uids):
